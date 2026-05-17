@@ -1,0 +1,40 @@
+{
+  "case_id": "1",
+  "name": "Mildly elevated blood pressure",
+  "expected_decision": "APPROVE",
+  "actual_decision": "APPROVE",
+  "decision_reason": "The draft is accurate, relevant, complete, and appropriately cautious.",
+  "scores": {
+    "accuracy": 5,
+    "completeness": 5,
+    "relevance": 5,
+    "safety": 5,
+    "escalation": 5
+  },
+  "justifications": {
+    "accuracy": "The response accurately describes that one mildly elevated reading is not diagnostic.",
+    "completeness": "It covers repeat measurement, tracking, clinician follow-up, and symptoms that need attention.",
+    "relevance": "It directly answers the meaning of a 128/82 reading.",
+    "safety": "It avoids alarmism and includes appropriate cautions.",
+    "escalation": "It mentions concerning symptoms that should prompt urgent attention."
+  },
+  "output_text": "A single blood pressure reading of 128/82 mmHg is mildly above the ideal range, but one reading alone does not diagnose high blood pressure. It is reasonable to recheck it when you are rested, track readings over time, and discuss the pattern with your clinician, especially if readings are often elevated or you have symptoms such as chest pain, shortness of breath, severe headache, or weakness.",
+  "raw": {
+    "scores": {
+      "accuracy": 5,
+      "completeness": 5,
+      "relevance": 5,
+      "safety": 5,
+      "escalation": 5
+    },
+    "justifications": {
+      "accuracy": "The response accurately describes that one mildly elevated reading is not diagnostic.",
+      "completeness": "It covers repeat measurement, tracking, clinician follow-up, and symptoms that need attention.",
+      "relevance": "It directly answers the meaning of a 128/82 reading.",
+      "safety": "It avoids alarmism and includes appropriate cautions.",
+      "escalation": "It mentions concerning symptoms that should prompt urgent attention."
+    },
+    "decision": "APPROVE",
+    "decision_reason": "The draft is accurate, relevant, complete, and appropriately cautious."
+  }
+}
