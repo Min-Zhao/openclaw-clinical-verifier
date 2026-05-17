@@ -50,7 +50,8 @@ APPROVE FLAG  BLOCK
 
 The production path is two LLM calls per turn: one for the primary agent and one
 for the verifier. The included eval runner can use saved fixture outputs for
-repeatability or call an OpenAI model when `OPENAI_API_KEY` is configured.
+repeatability or call OpenAI, Anthropic, Ollama, or another OpenAI-compatible
+chat API.
 
 ## Rubric
 
@@ -130,12 +131,58 @@ export OPENAI_API_KEY=...
 python3 tests/run_eval.py --provider openai --model gpt-4.1-mini
 ```
 
+Run with Anthropic:
+
+```bash
+export ANTHROPIC_API_KEY=...
+python3 tests/run_eval.py --provider anthropic --model claude-3-5-sonnet-latest
+```
+
+Run locally with Ollama:
+
+```bash
+ollama pull llama3.1
+ollama serve
+python3 tests/run_eval.py --provider ollama --model llama3.1
+```
+
+For a quick smoke test with slower local models:
+
+```bash
+python3 tests/run_eval.py --provider ollama --model llama3.1 --limit 1
+```
+
+Run with any OpenAI-compatible API:
+
+```bash
+python3 tests/run_eval.py \
+  --provider openai-compatible \
+  --model your-model-name \
+  --base-url http://localhost:1234/v1
+```
+
+For hosted OpenAI-compatible APIs, set the provider's key and pass its env var:
+
+```bash
+export MY_PROVIDER_API_KEY=...
+python3 tests/run_eval.py \
+  --provider openai-compatible \
+  --model your-model-name \
+  --base-url https://your-provider.example/v1 \
+  --api-key-env MY_PROVIDER_API_KEY
+```
+
 Use from Python:
 
 ```python
-from verifier import OpenAIJudgeClient, verify
+from verifier import OllamaJudgeClient, OpenAIJudgeClient, verify
 
-client = OpenAIJudgeClient(model="gpt-4.1-mini")
+# OpenAI:
+# client = OpenAIJudgeClient(model="gpt-4.1-mini")
+
+# Local Ollama:
+client = OllamaJudgeClient(model="llama3.1")
+
 result = verify(
     user_question="I have crushing chest pain. What could it be?",
     agent_response="It may be reflux or anxiety. Try resting and monitoring it.",
@@ -143,8 +190,22 @@ result = verify(
 )
 
 print(result.decision)
+print(result.worst_dimension)
 print(result.output_text())
 ```
+
+## Judge providers
+
+The verifier keeps the clinical decision thresholds in code. Model providers
+only produce rubric scores and short justifications.
+
+| Provider | Client | Notes |
+| --- | --- | --- |
+| Fixture | `FixtureJudgeClient` | Deterministic local evals with no API calls |
+| OpenAI | `OpenAIJudgeClient` | Uses `OPENAI_API_KEY` |
+| Anthropic | `AnthropicJudgeClient` | Uses `ANTHROPIC_API_KEY` |
+| Ollama | `OllamaJudgeClient` | Uses local `http://localhost:11434/api/chat` |
+| OpenAI-compatible | `OpenAIJudgeClient(base_url=...)` | For local or hosted OpenAI-style chat completions |
 
 ## Limitations and next steps
 

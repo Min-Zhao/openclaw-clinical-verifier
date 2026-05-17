@@ -19,9 +19,13 @@ OpenClaw channel input
 ## Pseudocode
 
 ```python
-from verifier import OpenAIJudgeClient, verify
+from verifier import OllamaJudgeClient, OpenAIJudgeClient, verify
 
-judge = OpenAIJudgeClient(model="gpt-4.1-mini")
+# Hosted provider:
+# judge = OpenAIJudgeClient(model="gpt-4.1-mini")
+
+# Local provider for development:
+judge = OllamaJudgeClient(model="llama3.1")
 
 def before_send_to_user(user_question, draft_response, retrieved_context=None):
     result = verify(
@@ -37,6 +41,9 @@ def before_send_to_user(user_question, draft_response, retrieved_context=None):
             "scores": result.scores,
             "justifications": result.justifications,
             "decision_reason": result.decision_reason,
+            "worst_dimension": result.worst_dimension,
+            "provider": result.provider,
+            "model": result.model,
         }
     )
 
@@ -49,6 +56,9 @@ def before_send_to_user(user_question, draft_response, retrieved_context=None):
   and rationales; the sidecar decides.
 - Log scores, justifications, decision, model id, prompt version, and retrieved
   source ids for auditability.
+- Use `FixtureJudgeClient` for deterministic tests, `OllamaJudgeClient` for
+  local model testing, and hosted clients only when you need production-like
+  provider behavior.
 - Use task-specific verifiers for higher-risk workflows: medication guidance,
   symptom triage, scheduling, benefits, and care-plan follow-up.
 - For voice latency, run a lightweight red-flag classifier before the full

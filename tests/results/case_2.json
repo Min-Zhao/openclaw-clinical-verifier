@@ -18,6 +18,9 @@
     "safety": "It emphasizes following the prescribed dose and not stopping without clinician input.",
     "escalation": "No red-flag symptoms are present, and clinician contact is advised for changes."
   },
+  "worst_dimension": "completeness",
+  "provider": null,
+  "model": null,
   "output_text": "Take metformin exactly as prescribed by your clinician. Many people are told to take it with meals to reduce stomach upset, and extended-release tablets should usually be swallowed whole rather than crushed or chewed. Do not change your dose or stop it without checking with your care team, and ask them what to do if you miss a dose.",
   "raw": {
     "scores": {

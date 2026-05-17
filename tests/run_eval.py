@@ -10,7 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from verifier import FixtureJudgeClient, OpenAIJudgeClient, verify
+from verifier import (
+    AnthropicJudgeClient,
+    FixtureJudgeClient,
+    OllamaJudgeClient,
+    OpenAIJudgeClient,
+    verify,
+)
 
 
 def load_cases(path: Path) -> list[dict]:
@@ -18,7 +24,13 @@ def load_cases(path: Path) -> list[dict]:
         return json.load(handle)
 
 
-def build_client(provider: str, cases: list[dict], model: str):
+def build_client(
+    provider: str,
+    cases: list[dict],
+    model: str,
+    base_url: str | None,
+    api_key_env: str,
+):
     if provider == "fixture":
         fixtures = {
             case["case_id"]: case["fixture_verifier_output"]
@@ -27,6 +39,19 @@ def build_client(provider: str, cases: list[dict], model: str):
         return FixtureJudgeClient(fixtures)
     if provider == "openai":
         return OpenAIJudgeClient(model=model)
+    if provider == "anthropic":
+        return AnthropicJudgeClient(model=model)
+    if provider == "ollama":
+        return OllamaJudgeClient(model=model, base_url=base_url or "http://localhost:11434")
+    if provider == "openai-compatible":
+        if not base_url:
+            raise ValueError("--base-url is required for --provider openai-compatible")
+        return OpenAIJudgeClient(
+            model=model,
+            base_url=base_url,
+            api_key_env=api_key_env,
+            provider="openai-compatible",
+        )
     raise ValueError(f"Unknown provider: {provider}")
 
 
@@ -40,6 +65,9 @@ def save_result(output_dir: Path, case: dict, result) -> None:
         "decision_reason": result.decision_reason,
         "scores": result.scores,
         "justifications": result.justifications,
+        "worst_dimension": result.worst_dimension,
+        "provider": result.provider,
+        "model": result.model,
         "output_text": result.output_text(),
         "raw": result.raw,
     }
@@ -61,13 +89,41 @@ def print_table(rows: list[dict]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run clinical verifier eval cases.")
     parser.add_argument("--cases", type=Path, default=ROOT / "tests" / "test_cases.json")
-    parser.add_argument("--provider", choices=["fixture", "openai"], default="fixture")
+    parser.add_argument(
+        "--provider",
+        choices=["fixture", "openai", "anthropic", "ollama", "openai-compatible"],
+        default="fixture",
+    )
     parser.add_argument("--model", default="gpt-4.1-mini")
+    parser.add_argument(
+        "--base-url",
+        help=(
+            "Base URL for Ollama or OpenAI-compatible providers. "
+            "Ollama defaults to http://localhost:11434."
+        ),
+    )
+    parser.add_argument(
+        "--api-key-env",
+        default="OPENAI_API_KEY",
+        help="Environment variable containing the API key for openai-compatible.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Run only the first N cases. Useful for slower local models.",
+    )
     parser.add_argument("--output-dir", type=Path, default=ROOT / "tests" / "results")
     args = parser.parse_args()
 
     cases = load_cases(args.cases)
-    client = build_client(args.provider, cases, args.model)
+    if args.limit is not None:
+        cases = cases[: args.limit]
+    model = args.model
+    if args.provider == "anthropic" and model == "gpt-4.1-mini":
+        model = "claude-3-5-sonnet-latest"
+    if args.provider == "ollama" and model == "gpt-4.1-mini":
+        model = "llama3.1"
+    client = build_client(args.provider, cases, model, args.base_url, args.api_key_env)
     rows = []
 
     for case in cases:
