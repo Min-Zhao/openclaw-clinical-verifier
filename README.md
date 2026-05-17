@@ -21,9 +21,9 @@ JSON, auditable justifications, and deterministic thresholds.
 ## Architecture
 
 ```text
-User input
-   |
-   v
+     User input
+         |
+         v
 +-----------------+
 |  Primary Agent  |  OpenClaw's existing agent + skills
 |   (OpenClaw)    |
@@ -45,7 +45,7 @@ APPROVE FLAG  BLOCK
    |     |     |
    v     v     v
  send  send  replace
- as-is +note with safe fallback
+ as-is + note with safe fallback
 ```
 
 The production path is two LLM calls per turn: one for the primary agent and one
