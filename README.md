@@ -146,46 +146,6 @@ ollama serve
 python3 tests/run_eval.py --provider ollama --model llama3.1
 ```
 
-## Voice demo
-
-This repo also includes a tiny spoken healthcare Q&A prototype:
-
-```text
-Audio file -> Whisper ASR -> LLM reasoning step -> pyttsx3 TTS
-```
-
-Install the optional voice dependencies:
-
-```bash
-python3 -m pip install -r requirements-voice.txt
-```
-
-Run with a local Ollama LLM:
-
-```bash
-ollama pull llama3.1
-ollama serve
-python3 -m voice_demo.run_voice_demo path/to/question.wav \
-  --llm-provider ollama \
-  --llm-model llama3.1 \
-  --tts-output outputs/answer.wav
-```
-
-Run with OpenAI:
-
-```bash
-export OPENAI_API_KEY=...
-python3 -m voice_demo.run_voice_demo path/to/question.wav \
-  --llm-provider openai \
-  --llm-model gpt-4.1-mini \
-  --tts-output outputs/answer.wav
-```
-
-Resume/GitHub bullet:
-
-> Built a prototype voice agent pipeline integrating Whisper (ASR), an LLM
-> reasoning step, and TTS for spoken healthcare Q&A.
-
 For a quick smoke test with slower local models:
 
 ```bash
